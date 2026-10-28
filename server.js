@@ -7,6 +7,7 @@ const mongoose=require('mongoose');
 const crypto=require('node:crypto');
 const path=require('node:path');
 const app=express();
+mongoose.connect(process.env.MONGODB_URI);
 app.disable('x-powered-by');
 app.use(helmet({contentSecurityPolicy:false}));
 app.use(express.json({limit:'20kb'}));
@@ -50,6 +51,7 @@ app.delete('/api/admin/products/:id',adminOnly,safe(async(req,res)=>{if(!validId
 app.use(express.static(path.join(__dirname,'public'),{extensions:['html']}));
 app.use((err,req,res,next)=>{console.error(err);res.status(500).json({error:'Server error'})});
 const seed=[{name:'Tractors & Power',category:'power',description:'Versatile power options for daily farm operations and field preparation.',image_url:'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=900&q=80',tag:'Field power'},{name:'Tillage Equipment',category:'tillage',description:'Practical implements to help prepare, cultivate and manage your soil.',image_url:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80',tag:'Soil preparation'},{name:'Crop Care & Harvest',category:'crop',description:'Equipment options to support crop maintenance and harvest-time tasks.',image_url:'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',tag:'Crop care'}];
-async function start(){if(!process.env.MONGODB_URI)throw Error('MONGODB_URI missing. Set it in .env');if(adminPass.length<12)throw Error('Set ADMIN_PASSWORD to at least 12 characters in .env');await mongoose.connect(process.env.MONGODB_URI,{serverSelectionTimeoutMS:10000});for(const item of seed)await Product.updateOne({category:item.category},{$setOnInsert:item},{upsert:true});const port=Number(process.env.PORT)||3000;app.listen(port,()=>console.log(`KSC website: http://localhost:${port} | Admin: http://localhost:${port}/admin.html`))}
-if(require.main===module)start().catch(e=>{console.error('MongoDB connection failed:',e.message);process.exit(1)});
-module.exports=app;
+async function start(){if(!process.env.MONGODB_URI)throw Error('MONGODB_URI missing. Set it in .env');if(adminPass.length<12)throw Error('Set ADMIN_PASSWORD to at least 12 characters in .env');await mongoose.connect(process.env.MONGODB_URI,{serverSelectionTimeoutMS:10000});for(const item of seed)await Product.updateOne({category:item.category},{$setOnInsert:item},{upsert:true});const port=Number(process.env.PORT)||3000;app.listen(port, '0.0.0.0', () => {
+  console.log(`KSC website running on port ${port}`);
+});
+}
