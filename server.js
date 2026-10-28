@@ -49,6 +49,9 @@ app.post('/api/admin/products',adminOnly,safe(async(req,res)=>{const p=product(r
 app.put('/api/admin/products/:id',adminOnly,safe(async(req,res)=>{if(!validId(req.params.id))return res.status(404).json({error:'Not found'});const p=product(req.body||{});if(!p)return res.status(400).json({error:'Invalid product'});const doc=await Product.findByIdAndUpdate(req.params.id,p,{runValidators:true});res.status(doc?200:404).json(doc?{ok:true}:{error:'Not found'})}));
 app.delete('/api/admin/products/:id',adminOnly,safe(async(req,res)=>{if(!validId(req.params.id))return res.status(404).json({error:'Not found'});const doc=await Product.findByIdAndDelete(req.params.id);res.status(doc?200:404).json(doc?{ok:true}:{error:'Not found'})}));
 app.use(express.static(path.join(__dirname,'public'),{extensions:['html']}));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 app.use((err,req,res,next)=>{console.error(err);res.status(500).json({error:'Server error'})});
 const seed=[{name:'Tractors & Power',category:'power',description:'Versatile power options for daily farm operations and field preparation.',image_url:'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=900&q=80',tag:'Field power'},{name:'Tillage Equipment',category:'tillage',description:'Practical implements to help prepare, cultivate and manage your soil.',image_url:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80',tag:'Soil preparation'},{name:'Crop Care & Harvest',category:'crop',description:'Equipment options to support crop maintenance and harvest-time tasks.',image_url:'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',tag:'Crop care'}];
 
